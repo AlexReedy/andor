@@ -357,7 +357,7 @@ class Andor():
         imageArray = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
         print(f'Len of Image Array: {len(imageArray)}')
 
-        row=0
+        row = 0
         for i in range(self.detector_height):
             for j in range(self.detector_width):
                 imageArray[i][j] = data[row]
@@ -365,11 +365,34 @@ class Andor():
 
         print(f'Len of Data After Loops: {len(data)}')
 
-        date = datetime.today().strftime('%Y%m%d')
-        timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
+        datetimestr = self.start_time.isoformat()
+        datestr, timestr = datetimestr.split('T')
         hdul = fits.PrimaryHDU(imageArray, uint=True)
-        hdul.scale('uint16', bzero=32768)
-        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{timestamp}')
+        hdul.scale('int16', bzero=32768)
+        hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
+        hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
+        #hdul.header.set("TEMP", self.opt.getParameter("SensorTemperatureReading"), "Detector temp in deg C")
+        hdul.header.set("GAIN_SET", 2, "Gain mode")
+        hdul.header.set("ADC", 1, "ADC Quality")
+        hdul.header.set("MODEL", 22, "Instrument Mode Number")
+        hdul.header.set("INTERFC", "USB", "Instrument Interface")
+        hdul.header.set("SNSR_NM", "E2V 2048 x 2048 (CCD 42-40)(B)", "Sensor Name")
+        hdul.header.set("SER_NO", self.serial, "Serial Number")
+        hdul.header.set("TELESCOP", self.telescope, "Telescope ID")
+        # hdul.header.set("GAIN", self.gain, "Gain")
+        hdul.header.set("CAM_NAME", "%s Cam" % self.camPrefix.upper(), "Camera Name")
+        hdul.header.set("INSTRUME", "SEDM-P60", "Camera Name")
+        # hdul.header.set("UTC", start_time.isoformat(), "UT-Shutter Open")
+        # hdul.header.set("END_SHUT", datetime.datetime.utcnow().isoformat(), "Shutter Close Time")
+        # hdul.header.set("OBSDATE", datestr, "UT Start Date")
+        # hdul.header.set("OBSTIME", timestr, "UT Start Time")
+        # hdul.header.set("CRPIX1", self.crpix1, "Center X pixel")
+        # hdul.header.set("CRPIX2", self.crpix2, "Center Y pixel")
+        # hdul.header.set("CDELT1", self.cdelt1, self.cdelt1_comment)
+        # hdul.header.set("CDELT2", self.cdelt2, self.cdelt2_comment)
+        # hdul.header.set("CTYPE1", self.ctype1)
+        # hdul.header.set("CTYPE2", self.ctype2)
+        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{self.start_time}')
 
 
 
