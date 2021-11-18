@@ -169,6 +169,9 @@ class Andor():
         self.vend = None
         self.readmode = None
         self.acquisitionmode = None
+        self.exp_time = None
+        self.telescope = '60'
+        self.readmode = None
 
 
     def loadLibrary(self):
@@ -290,6 +293,7 @@ class Andor():
         return ERROR_STRING[status]
 
     def SetReadMode(self, mode):
+        self.readmode = mode
         status = check_call(self.lib.SetReadMode(c_int(mode)))
         return ERROR_STRING[status]
 
@@ -298,6 +302,7 @@ class Andor():
         return ERROR_STRING[status]
 
     def SetExposureTime(self, time):
+        self.exp_time = time
         status = check_call(self.lib.SetExposureTime(c_float(time)))
         return ERROR_STRING[status]
 
@@ -364,11 +369,15 @@ class Andor():
                 row = row + 1
 
         print(f'Len of Data After Loops: {len(data)}')
+        print(f'{imageArray}')
 
-        datetimestr = self.start_time.isoformat()
-        datestr, timestr = datetimestr.split('T')
+        #datetimestr = self.start_time.isoformat()
+        #datestr, timestr = datetimestr.split('T')
+
+        date = datetime.today().strftime('%Y%m%d')
+        timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
         hdul = fits.PrimaryHDU(imageArray, uint=True)
-        hdul.scale('int16', bzero=32768)
+        hdul.scale('int16')
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
         hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
         #hdul.header.set("TEMP", self.opt.getParameter("SensorTemperatureReading"), "Detector temp in deg C")
@@ -380,7 +389,7 @@ class Andor():
         hdul.header.set("SER_NO", self.serial, "Serial Number")
         hdul.header.set("TELESCOP", self.telescope, "Telescope ID")
         # hdul.header.set("GAIN", self.gain, "Gain")
-        hdul.header.set("CAM_NAME", "%s Cam" % self.camPrefix.upper(), "Camera Name")
+        #hdul.header.set("CAM_NAME", "%s Cam" % self.camPrefix.upper(), "Camera Name")
         hdul.header.set("INSTRUME", "SEDM-P60", "Camera Name")
         # hdul.header.set("UTC", start_time.isoformat(), "UT-Shutter Open")
         # hdul.header.set("END_SHUT", datetime.datetime.utcnow().isoformat(), "Shutter Close Time")
@@ -392,7 +401,7 @@ class Andor():
         # hdul.header.set("CDELT2", self.cdelt2, self.cdelt2_comment)
         # hdul.header.set("CTYPE1", self.ctype1)
         # hdul.header.set("CTYPE2", self.ctype2)
-        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{self.start_time}')
+        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{timestamp}.fits')
 
 
 

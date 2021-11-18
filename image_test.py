@@ -12,7 +12,7 @@ ax.set_xlabel('Time [Sec]')
 ax.set_ylim(ymin=-100, ymax=60)
 
 run_command = input('[SYSTEM MESSAGE] Begin Initialization? [y/n]: ')
-if run_command == 'y':
+if run_command == 'y' or run_command == '':
     andor = Andor()
     andor.loadLibrary()
 
@@ -34,11 +34,11 @@ if run_command == 'y':
     print(f' -> STATUS: [{cam_set}]')
 
     initialize_command = input('[SYSTEM MESSAGE] Initialize Camera? [y/n]: ')
-    if initialize_command == 'y':
-        cool_to_temp = -30
-        print(f'[INITIALIZING CAMERA]')
+    if initialize_command == 'y' or initialize_command == '':
+
         initialize = andor.Initialize()
-        print(f' -> STATUS = [{initialize}]')
+
+        andor.GetCameraSerialNumber()
 
         andor.SetReadMode(mode=4)
         andor.SetAcquisitionMode(mode=1)
@@ -55,18 +55,13 @@ if run_command == 'y':
         andor.GetDetector()
 
         take_image_command = input('[SYSTEM MESSAGE] Take Image? [y/n]: ')
-        if take_image_command == 'y':
+        if take_image_command == 'y' or take_image_command == '':
 
             andor.StartAcquisition()
-
             data = []
-            print(len(data))
-
             andor.GetAcquiredData16(data)
-            andor.SaveAsFITS(FileTitle='test.fits', typ=0)
-
-            #andor.saveFits(data)
-
+            #andor.SaveAsFITS(FileTitle='test.fits', typ=0)
+            andor.saveFits(data)
 
         if take_image_command == 'n':
             print('Image Acquisition Cancelled: Shutting Down')
