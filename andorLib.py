@@ -3,6 +3,9 @@ import platform
 from ctypes import *
 import sys
 import os
+from astropy.io import fits
+from datetime import datetime
+import time
 
 import numpy as np
 
@@ -349,6 +352,22 @@ class Andor():
     def SaveAsFITS(self, FileTitle, typ):
         status = check_call(self.lib.SaveAsFITS(FileTitle, c_int(typ)))
         return ERROR_STRING[status]
+
+    def saveFits(self, data):
+        imageArray = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
+        print(f'Len of Image Array: {len(imageArray)}')
+        row=0
+        for i in range(self.detector_height):
+            for j in range(self.detector_width):
+                imageArray[i][j] = data[row]
+                row = row + 1
+        print(f'Len of Data After Loops: {len(data)}')
+        date = datetime.today().strftime('%Y%m%d')
+        timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
+        hdul = fits.PrimaryHDU(imageArray, uint=True)
+        hdul.scale('uint16', bzero=32768)
+        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{timestamp}')
+
 
 
     # SHOULD MAKE THOSE SO IT WON'T SHUT DOWN UNTIL DETECTOR TEMP HAS REACHED A SPECIFIED LEVEL

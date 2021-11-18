@@ -52,15 +52,21 @@ if run_command == 'y':
         detector_dimensions = andor.GetDetector()
         andor.SetImage(hbin=1, vbin=1, hstart=1, hend=detector_dimensions[1], vstart=1, vend=detector_dimensions[2])
 
+        andor.GetDetector()
+
         take_image_command = input('[SYSTEM MESSAGE] Take Image? [y/n]: ')
         if take_image_command == 'y':
 
             andor.StartAcquisition()
 
             data = []
+            print(len(data))
 
             andor.GetAcquiredData16(data)
             andor.SaveAsFITS(FileTitle='test.fits', typ=0)
+
+            #andor.saveFits(data)
+
 
         if take_image_command == 'n':
             print('Image Acquisition Cancelled: Shutting Down')
