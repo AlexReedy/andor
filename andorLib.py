@@ -356,12 +356,15 @@ class Andor():
     def saveFits(self, data):
         imageArray = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
         print(f'Len of Image Array: {len(imageArray)}')
+
         row=0
         for i in range(self.detector_height):
             for j in range(self.detector_width):
                 imageArray[i][j] = data[row]
                 row = row + 1
+
         print(f'Len of Data After Loops: {len(data)}')
+
         date = datetime.today().strftime('%Y%m%d')
         timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
         hdul = fits.PrimaryHDU(imageArray, uint=True)
