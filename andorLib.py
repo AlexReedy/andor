@@ -377,7 +377,7 @@ class Andor():
         date = datetime.today().strftime('%Y%m%d')
         timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
         hdul = fits.PrimaryHDU(imageArray, uint=True)
-        hdul.scale('int16')
+        hdul.scale('int16', bzero=32768)
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
         hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
         #hdul.header.set("TEMP", self.opt.getParameter("SensorTemperatureReading"), "Detector temp in deg C")
