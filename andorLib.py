@@ -324,23 +324,6 @@ class Andor():
         self.lib.WaitForAcquisition()
         return ERROR_STRING[status]
 
-    def GetAcquiredData(self, imageArray):
-        dim = int(self.detector_height * self.detector_width / 1 / 1)
-        print(f'dim = {dim}')
-        cimageArray = c_int * dim
-        print(f'cimage = {cimageArray}')
-        cimage = cimageArray()
-        print(f'cimage = {cimage}')
-
-        status = check_call(self.lib.GetAcquiredData(pointer(cimage), dim))
-
-        for i in range(len(cimage)):
-            imageArray.append(cimage[i])
-
-        self.imageArray = imageArray
-
-        return ERROR_STRING[status]
-
     def GetAcquiredData16(self, imageArray):
         dim = int(self.detector_height * self.detector_width / 1 / 1)
 
