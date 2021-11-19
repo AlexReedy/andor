@@ -334,8 +334,6 @@ class Andor():
 
         for i in range(len(cimage)):
             imageArray.append(cimage[i])
-
-        print(f'Len of imageArray from GetAcquiredData16: {len(imageArray)}')
         self.imageArray = imageArray
 
         return ERROR_STRING[status]
