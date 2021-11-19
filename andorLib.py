@@ -172,6 +172,7 @@ class Andor():
         self.exp_time = None
         self.telescope = '60'
         self.readmode = None
+        self.imageArray = None
 
 
     def loadLibrary(self):
@@ -341,17 +342,19 @@ class Andor():
         return ERROR_STRING[status]
 
     def GetAcquiredData16(self, imageArray):
-        #dim = np.zeros((self.detector_height*self.detector_width), dtype='uint16')
         dim = int(self.detector_height * self.detector_width / 1 / 1)
+
         cimageArray = c_int16 * dim
         cimage = cimageArray()
 
-        status = check_call(self.lib.GetAcquiredData16(pointer(cimage),dim))
+        status = check_call(self.lib.GetAcquiredData16(pointer(cimage), dim))
+
         for i in range(len(cimage)):
             imageArray.append(cimage[i])
 
         print(f'Len of imageArray from GetAcquiredData16: {len(imageArray)}')
         self.imageArray = imageArray
+
         return ERROR_STRING[status]
 
     def SaveAsTxt(self, path):
@@ -361,10 +364,6 @@ class Andor():
             file.write("%g\n" % line)
 
         file.close()
-
-    def SaveAsFITS(self, FileTitle, typ):
-        status = check_call(self.lib.SaveAsFITS(FileTitle, c_int(typ)))
-        return ERROR_STRING[status]
 
     def saveFits(self):
         self.imageArray = np.reshape(self.imageArray, (self.detector_height, self.detector_width))
