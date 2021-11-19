@@ -366,31 +366,13 @@ class Andor():
         status = check_call(self.lib.SaveAsFITS(FileTitle, c_int(typ)))
         return ERROR_STRING[status]
 
-    def saveFits(self, data):
-        # array = np.zeros((self.detector_width, self.detector_height), dtype='uint16')
-        print(f'Len of Image Array: {len(self.imageArray)}')
-        print(type(self.imageArray[10]))
-        imdata = np.asarray(self.imageArray, dtype=np.uint16)
-        print(type(imdata[10]))
-
-        array = np.reshape(imdata, (self.detector_height, self.detector_width))
-        print(type(array[10, 10]))
-
-        # row = 0
-        # for i in range(self.detector_width):
-        #    for j in range(self.detector_height):
-        #        array[i][j] = imdata[row]
-        #        row = row + 1
-
-        print(f'Array size: {array.shape}')
-
-
-        #datetimestr = self.start_time.isoformat()
-        #datestr, timestr = datetimestr.split('T')
+    def saveFits(self):
+        self.imageArray = np.reshape(self.imageArray, (self.detector_height, self.detector_width))
 
         date = datetime.today().strftime('%Y%m%d')
         timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
-        hdul = fits.PrimaryHDU(array, uint=True)
+
+        hdul = fits.PrimaryHDU(self.imageArray, uint=True)
         hdul.scale('int16', bzero=32768)
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
         hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
