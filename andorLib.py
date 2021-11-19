@@ -360,16 +360,22 @@ class Andor():
         return ERROR_STRING[status]
 
     def saveFits(self, data):
-        array = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
-        print(f'Len of Image Array: {len(array)}')
+        # array = np.zeros((self.detector_width, self.detector_height), dtype='uint16')
+        print(f'Len of Image Array: {len(self.imageArray)}')
+        print(type(self.imageArray[10]))
+        imdata = np.asarray(self.imageArray, dtype=np.uint16)
+        print(type(imdata[10]))
 
-        row = 0
-        for i in range(self.detector_height):
-            for j in range(self.detector_width):
-                array[i][j] = data[row]
-                row = row + 1
+        array = np.reshape(imdata, (self.detector_height, self.detector_width))
+        print(type(array[10, 10]))
 
-        print(f'Len of Data After Loops: {len(data)}')
+        # row = 0
+        # for i in range(self.detector_width):
+        #    for j in range(self.detector_height):
+        #        array[i][j] = imdata[row]
+        #        row = row + 1
+
+        print(f'Array size: {array.shape}')
 
 
         #datetimestr = self.start_time.isoformat()
