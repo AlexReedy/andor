@@ -350,6 +350,7 @@ class Andor():
         for i in range(len(cimage)):
             imageArray.append(cimage[i])
 
+        print(f'Len of imageArray from GetAcquiredData16: {len(imageArray)}')
         self.imageArray = imageArray
 
         return ERROR_STRING[status]
@@ -359,24 +360,24 @@ class Andor():
         return ERROR_STRING[status]
 
     def saveFits(self, data):
-        imageArray = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
-        print(f'Len of Image Array: {len(imageArray)}')
+        array = np.zeros((self.detector_height, self.detector_width), dtype='uint16')
+        print(f'Len of Image Array: {len(array)}')
 
         row = 0
         for i in range(self.detector_height):
             for j in range(self.detector_width):
-                imageArray[i][j] = data[row]
+                array[i][j] = data[row]
                 row = row + 1
 
         print(f'Len of Data After Loops: {len(data)}')
-        print(f'{imageArray}')
+
 
         #datetimestr = self.start_time.isoformat()
         #datestr, timestr = datetimestr.split('T')
 
         date = datetime.today().strftime('%Y%m%d')
         timestamp = f'{date}_{time.strftime("%I")}{time.strftime("%M")}'
-        hdul = fits.PrimaryHDU(imageArray, uint=True)
+        hdul = fits.PrimaryHDU(array, uint=True)
         hdul.scale('int16', bzero=32768)
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
         hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
