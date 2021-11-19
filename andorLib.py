@@ -343,7 +343,7 @@ class Andor():
     def GetAcquiredData16(self, imageArray):
         #dim = np.zeros((self.detector_height*self.detector_width), dtype='uint16')
         dim = int(self.detector_height * self.detector_width / 1 / 1)
-        cimageArray = c_int * dim
+        cimageArray = c_int16 * dim
         cimage = cimageArray()
 
         status = check_call(self.lib.GetAcquiredData16(pointer(cimage),dim))
@@ -352,8 +352,15 @@ class Andor():
 
         print(f'Len of imageArray from GetAcquiredData16: {len(imageArray)}')
         self.imageArray = imageArray
-
         return ERROR_STRING[status]
+
+    def SaveAsTxt(self, path):
+        file = open(path, 'w')
+
+        for line in self.imageArray:
+            file.write("%g\n" % line)
+
+        file.close()
 
     def SaveAsFITS(self, FileTitle, typ):
         status = check_call(self.lib.SaveAsFITS(FileTitle, c_int(typ)))

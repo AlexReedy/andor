@@ -60,8 +60,9 @@ if run_command == 'y' or run_command == '':
             andor.StartAcquisition()
             data = []
             andor.GetAcquiredData16(data)
+            andor.SaveAsTxt(path=f'/home/alex/fits_images/savefits_tests/test_data.txt')
             #andor.SaveAsFITS(FileTitle='test.fits', typ=0)
-            andor.saveFits(data)
+            #andor.saveFits(data)
 
         if take_image_command == 'n':
             print('Image Acquisition Cancelled: Shutting Down')
