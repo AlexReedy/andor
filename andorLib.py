@@ -6,7 +6,6 @@ import os
 from astropy.io import fits
 from datetime import datetime
 import time
-
 import numpy as np
 
 ERROR_CODES = {'DRV_ERROR_CODES': 20001,
