@@ -335,6 +335,7 @@ class Andor():
             imageArray.append(cimage[i])
         self.imageArray = imageArray
 
+
         return ERROR_STRING[status]
 
     def SaveAsTxt(self, path):
