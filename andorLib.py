@@ -230,6 +230,7 @@ class Andor():
         return ERROR_STRING[status], self.ADC_Channels
 
 
+
     def GetNumberVSSpeeds(self):
         VS_Speeds = c_int()
         status = check_call(self.lib.GetNumberVSSpeeds(byref(VS_Speeds)))
@@ -393,3 +394,5 @@ class Andor():
         status = check_call(self.lib.ShutDown())
         print(f"{ERROR_STRING[status]}")
         return ERROR_STRING[status]
+
+
