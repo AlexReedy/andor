@@ -7,10 +7,13 @@ andor = Andor()
 andor.loadLibrary()
 
 connected_cams = andor.GetAvailableCameras()
-cam_handle = andor.GetCameraHandle(connected_cams[1]-1)
-andor.SetCurrentCamera(cam_handle[1])
+handle = andor.GetCameraHandle(connected_cams[1]-1)
+andor.SetCurrentCamera(handle[1])
 
 initialize = andor.Initialize()
 
-andor.GetCameraSerialNumber()
-andor.GetDetector()
+serial = andor.GetCameraSerialNumber()[1]
+detector_dim = [andor.GetDetector()[1], andor.GetDetector()[2]]
+num_vss = andor.GetNumberVSSpeeds()[1]
+num_hss = andor.GetNumberHSSpeeds()[1]
+
