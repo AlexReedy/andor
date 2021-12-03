@@ -152,6 +152,7 @@ class Andor():
         self.serial = None
         self.detector_width = None
         self.detector_height = None
+        self.ADC_Channels = None
         self.VS_Speeds = None
         self.VS_Speed = None
         self.VS_Index = None
@@ -221,6 +222,12 @@ class Andor():
         self.detector_width = detector_width.value
         self.detector_height = detector_height.value
         return ERROR_STRING[status], self.detector_width, self.detector_height
+
+    def GetNumberADChannels(self):
+        ADC_Channels = c_int()
+        status = check_call(self.lib.GetNumberADChannels(byref(ADC_Channels)))
+        self.ADC_Channels = ADC_Channels.value
+        return ERROR_STRING[status], self.ADC_Channels
 
 
     def GetNumberVSSpeeds(self):
@@ -335,6 +342,7 @@ class Andor():
             imageArray.append(cimage[i])
         self.imageArray = imageArray
 
+
         return ERROR_STRING[status]
 
     def SaveAsTxt(self, path):
@@ -385,5 +393,3 @@ class Andor():
         status = check_call(self.lib.ShutDown())
         print(f"{ERROR_STRING[status]}")
         return ERROR_STRING[status]
-
-
