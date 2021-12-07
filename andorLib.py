@@ -156,11 +156,13 @@ class Andor():
 
         self.adc_channels = None
 
+        self.num_amps = None
+
         self.num_preamp_gains = None
+        self.pre_amp_gain = None
 
         self.num_vss = None
         self.vs_speed = None
-        #self.VS_Index = None
 
         self.num_hss = None
         self.hs_speed = None
@@ -238,11 +240,24 @@ class Andor():
         self.adc_channels = adc_channels.value
         return ERROR_STRING[status], self.adc_channels
 
+    def GetNumberAmp(self):
+        num_amps = c_int()
+        status = check_call(self.lib.GetNumberAmp(byref(num_amps)))
+        self.num_amps = num_amps.value
+        return ERROR_STRING[status], self.num_amps
+
+
     def GetNumberPreAmpGains(self):
         num_preamp_gains = c_int()
         status = check_call(self.lib.GetNumberPreAmpGains(byref(num_preamp_gains)))
         self.num_preamp_gains = num_preamp_gains.value
         return ERROR_STRING[status], self.num_preamp_gains
+
+    def GetPreAmpGain(self, pre_amp_gain_index):
+        pre_amp_gain = c_float()
+        status = check_call(self.lib.GetPreAmpGain(c_int(pre_amp_gain_index), byref(pre_amp_gain)))
+        self.pre_amp_gain = pre_amp_gain.value
+        return ERROR_STRING[status], self.pre_amp_gain
 
     def GetNumberVSSpeeds(self):
         num_vss = c_int()
@@ -254,7 +269,7 @@ class Andor():
     def GetVSSpeed(self, vss_index):
         vs_speed = c_float()
         status = check_call(self.lib.GetVSSpeed(c_int(vss_index), byref(vs_speed)))
-        self.VS_Speed = vs_speed.value
+        self.vs_speed = vs_speed.value
         return ERROR_STRING[status], self.vs_speed
 
 
@@ -269,7 +284,7 @@ class Andor():
         hs_speed = c_float()
         status = check_call(self.lib.GetHSSpeed(c_int(adc_channel), c_int(output_amp), c_int(hss_index), byref(hs_speed)))
         self.hs_speed = hs_speed.value
-        return ERROR_STRING[status], self.HS_Speed
+        return ERROR_STRING[status], self.hs_speed
 
     def GetTemperatureRange(self):
         mintemp = c_int()
