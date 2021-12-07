@@ -150,28 +150,37 @@ class Andor():
         self.totalCameras = None
         self.cameraHandle = None
         self.serial = None
+
         self.detector_width = None
         self.detector_height = None
-        self.ADC_Channels = None
-        self.VS_Speeds = None
-        self.VS_Speed = None
-        self.VS_Index = None
-        self.HS_Speeds = None
-        self.HS_Speed = None
+
+        self.adc_channels = None
+
+        self.num_preamp_gains = None
+
+        self.num_vss = None
+        self.vs_speed = None
+        #self.VS_Index = None
+
+        self.num_hss = None
+        self.hs_speed = None
+
         self.current_temp = None
         self.mintemp = None
         self.maxtemp = None
+
         self.hbin = 1
         self.vbin = 1
         self.hstart = 1
         self.hend = None
         self.vstart = 1
         self.vend = None
+
         self.readmode = None
         self.acquisitionmode = None
         self.exp_time = None
+
         self.telescope = '60'
-        self.readmode = None
         self.imageArray = None
 
 
@@ -224,38 +233,42 @@ class Andor():
         return ERROR_STRING[status], self.detector_width, self.detector_height
 
     def GetNumberADChannels(self):
-        ADC_Channels = c_int()
-        status = check_call(self.lib.GetNumberADChannels(byref(ADC_Channels)))
-        self.ADC_Channels = ADC_Channels.value
-        return ERROR_STRING[status], self.ADC_Channels
+        adc_channels = c_int()
+        status = check_call(self.lib.GetNumberADChannels(byref(adc_channels)))
+        self.adc_channels = adc_channels.value
+        return ERROR_STRING[status], self.adc_channels
 
-
+    def GetNumberPreAmpGains(self):
+        num_preamp_gains = c_int()
+        status = check_call(self.lib.GetNumberPreAmpGains(byref(num_preamp_gains)))
+        self.num_preamp_gains = num_preamp_gains.value
+        return ERROR_STRING[status], self.num_preamp_gains
 
     def GetNumberVSSpeeds(self):
-        VS_Speeds = c_int()
-        status = check_call(self.lib.GetNumberVSSpeeds(byref(VS_Speeds)))
-        self.VS_Speeds = VS_Speeds.value
+        num_vss = c_int()
+        status = check_call(self.lib.GetNumberVSSpeeds(byref(num_vss)))
+        self.VS_Speeds = num_vss.value
         return ERROR_STRING[status], self.VS_Speeds
 
 
-    def GetVSSpeed(self, VS_Index):
-        VS_Speed = c_float()
-        status = check_call(self.lib.GetVSSpeed(c_int(VS_Index), byref(VS_Speed)))
-        self.VS_Speed = VS_Speed.value
-        return ERROR_STRING[status], self.VS_Speed
+    def GetVSSpeed(self, vss_index):
+        vs_speed = c_float()
+        status = check_call(self.lib.GetVSSpeed(c_int(vss_index), byref(vs_speed)))
+        self.VS_Speed = vs_speed.value
+        return ERROR_STRING[status], self.vs_speed
 
 
-    def GetNumberHSSpeeds(self, HS_Channel, HS_Type):
-        HS_Speeds = c_int()
-        status = check_call(self.lib.GetNumberHSSpeeds(c_int(HS_Channel), c_int(HS_Type), byref(HS_Speeds)))
-        self.HS_Speeds = HS_Speeds.value
-        return ERROR_STRING[status], self.HS_Speeds
+    def GetNumberHSSpeeds(self, adc_channel, output_amp):
+        num_hss = c_int()
+        status = check_call(self.lib.GetNumberHSSpeeds(c_int(adc_channel), c_int(output_amp), byref(num_hss)))
+        self.num_hss = num_hss.value
+        return ERROR_STRING[status], self.num_hss
 
 
-    def GetHSSpeed(self, HS_Channel, HS_Type, HS_Index):
-        HS_Speed = c_float()
-        status = check_call(self.lib.GetHSSpeed(c_int(HS_Channel), c_int(HS_Type), c_int(HS_Index), byref(HS_Speed)))
-        self.HS_Speed = HS_Speed.value
+    def GetHSSpeed(self, adc_channel, output_amp, hss_index):
+        hs_speed = c_float()
+        status = check_call(self.lib.GetHSSpeed(c_int(adc_channel), c_int(output_amp), c_int(hss_index), byref(hs_speed)))
+        self.hs_speed = hs_speed.value
         return ERROR_STRING[status], self.HS_Speed
 
     def GetTemperatureRange(self):

@@ -39,9 +39,19 @@ for vss_index in range(num_vss):
     print(f'Vertical Shift Speed [Index {vss_index}]: {andor.GetVSSpeed(vss_index)} Microseconds Per Pixel Shift')
 
 # Get Number of Available Horizontal Shift Speeds Per AD Channel
-print(f'Number of Horizontal Shift Speeds Per AD Channel')
+output_amp_dict = {0: 'Electron Multiplied',
+                   1: 'Conventional'}
+
 for channel in range(num_adc_channels):
-    print()
+    print(f'ADC Channel: {channel}')
+    for output_amp in range(2):
+        num_hss = andor.GetNumberHSSpeed(channel, output_amp)[1]-1
+        print(f' > Number of HS Speeds Available for Output Amp [{output_amp}]: {num_hss}')
+        for hss_index in range(num_hss):
+            hss_speed = andor.GetHSSpeed(channel, output_amp, hss_index)
+            print(f'    > HSS Index {hss_index}: {hss_speed} MHz')
+
+
 
 
 
