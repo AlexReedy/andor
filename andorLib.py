@@ -143,12 +143,31 @@ def check_call(status):
         raise ValueError(f'Driver return {status} ({ERROR_STRING[status]})')
     return status
 
+class AndorCapabilities(Structure):
+    _fields_ = [
+        ("Size", c_uint),
+        ("AcqModes", c_uint),
+        ("ReadModes", c_uint),
+        ("TriggerModes", c_uint),
+        ("CameraType", c_uint),
+        ("PixelMode", c_uint),
+        ("SetFunctions", c_uint),
+        ("GetFunctions", c_uint),
+        ("Features", c_uint),
+        ("PCICard", c_uint),
+        ("EMGainCapability", c_uint),
+        ("FTReadModes", c_uint),
+    ]
+
 
 class Andor():
     def __init__(self):
         self.lib = None
         self.totalCameras = None
         self.cameraHandle = None
+
+        self.caps = None
+
         self.serial = None
 
         self.detector_width = None
@@ -218,6 +237,13 @@ class Andor():
         status = check_call(self.lib.Initialize(pathToDir))
         return ERROR_STRING[status]
 
+    def GetCapabilities(self):
+        caps = AndorCapabilities()
+        caps.size = sizeof(caps)
+        status = check_call(self.lib.GetCapabilities(byref(caps)))
+        self.caps = caps
+        print()
+        return ERROR_STRING[status], self.caps
 
     def GetCameraSerialNumber(self):
         serial = c_int()
