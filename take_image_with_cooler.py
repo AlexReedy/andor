@@ -1,6 +1,7 @@
 from andorLib import *
 import time
 import matplotlib.pyplot as plt
+import timeit
 
 andor = Andor()
 andor.loadLibrary()
@@ -33,19 +34,11 @@ def pre_initialization():
 
 
 def initialize_camera():
-    init = andor.Initialize()
-    print(f'Camera Initialization: [{init}]')
-
-    read_mode = andor.SetReadMode(mode=4)
-    print(f'Setting Readout Mode: [{read_mode}]')
-
+    andor.Initialize()
+    andor.SetReadMode(mode=4)
     andor.SetAcquisitionMode(mode=1)
-    andor.SetVSSpeed(index=1)
-    andor.SetHSSpeed(typ=0, index=2)
-    andor.SetPreAmpGain(index=0)
-
-
     andor.SetShutter(1, 0, 20, 20)
+    andor.SetADChannel(0)
     detector_dimensions = andor.GetDetector()
     andor.SetImage(hbin=1, vbin=1, hstart=1, hend=detector_dimensions[1], vstart=1, vend=detector_dimensions[2])
     andor.GetDetector()
@@ -84,8 +77,21 @@ def begin_cooling():
 
 def take_image():
     exp_time = float(input('Input Exp Time: '))
+    hs_index = int(input('Input Horizontal Shift Speed Index: '))
+    vs_index = int(input('Input Vertical Shift Speed Index: '))
+    pre_amp_gain_index = int(input('Input Pre Amp Gain Index: '))
+
     andor.SetExposureTime(exp_time)
+    andor.SetVSSpeed(vs_index)
+    andor.SetHSSpeed(typ=0, index=hs_index)
+    andor.SetPreAmpGain(index=pre_amp_gain_index)
+
+    start_time = timeit.default_timer()
     andor.StartAcquisition()
+    end_time = timeit.default_timer()
+    read_time = end_time - start_time
+    print(f'{vs_index}{hs_index}{pre_amp_gain_index}_runtime: {read_time}')
+
     data = []
     andor.GetAcquiredData16(data)
     # andor.SaveAsFITS(FileTitle='test.fits', typ=0)

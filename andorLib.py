@@ -168,12 +168,15 @@ class Andor():
 
         self.caps = None
 
-        self.serial = None
+        self.serial = 26265
 
         self.detector_width = None
         self.detector_height = None
 
+        self.capacity_state = None
+
         self.adc_channels = None
+        self.adc_idx = None
 
         self.num_amps = None
 
@@ -182,9 +185,11 @@ class Andor():
 
         self.num_vss = None
         self.vs_speed = None
+        self.vs_index = None
 
         self.num_hss = None
         self.hs_speed = None
+        self.hs_index = None
 
         self.current_temp = None
         self.mintemp = None
@@ -350,6 +355,11 @@ class Andor():
         return ERROR_STRING[status]
 
 
+    def SetHighCapacity(self, state):
+        self.capacity_state = state
+        status = check_call(self.lib.SetHighCapacity(c_int(state)))
+        return ERROR_STRING[status]
+
     def SetAcquisitionMode(self, mode):
         status = check_call(self.lib.SetAcquisitionMode(c_int(mode)))
         return ERROR_STRING[status]
@@ -368,15 +378,23 @@ class Andor():
         status = check_call(self.lib.SetExposureTime(c_float(time)))
         return ERROR_STRING[status]
 
+    def SetADChannel(self, channel):
+        self.adc_idx = channel
+        status = check_call(self.lib.SetADChannel(c_int(channel)))
+        return ERROR_STRING[status]
+
     def SetHSSpeed(self, typ, index):
+        self.hs_index = index
         status = check_call(self.lib.SetHSSpeed(c_int(typ), c_int(index)))
         return ERROR_STRING[status]
 
     def SetVSSpeed(self, index):
+        self.vs_index = index
         status = check_call(self.lib.SetVSSpeed(c_int(index)))
         return ERROR_STRING[status]
 
     def SetPreAmpGain(self, index):
+        self.pre_amp_gain_idx = index
         status = check_call(self.lib.SetPreAmpGain(c_int(index)))
         return ERROR_STRING[status]
 
@@ -417,28 +435,16 @@ class Andor():
         hdul = fits.PrimaryHDU(self.imageArray, uint=True)
         hdul.scale('int16', bzero=32768)
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
-        hdul.header.set("ADCSPEED", self.readmode, "Readout speed in MHz")
-        #hdul.header.set("TEMP", self.opt.getParameter("SensorTemperatureReading"), "Detector temp in deg C")
-        hdul.header.set("GAIN_SET", 2, "Gain mode")
-        hdul.header.set("ADC", 1, "ADC Quality")
-        hdul.header.set("MODEL", 22, "Instrument Mode Number")
+        hdul.header.set("ADCHANNEL", self.adc_idx, "A-D Channel")
+        hdul.header.set("HSSPEED", self.GetHSSpeed(self.pre_amp_gain_idx, self.hs_index), "HS speed in MHz")
+        hdul.header.set("VSSPEED", self.GetVSSpeed(self.vs_index), "VS Speed in microseconds")
+        hdul.header.set("TEMP", self.GetTemperature()[1], "Detector temp in deg C")
         hdul.header.set("INTERFC", "USB", "Instrument Interface")
-        hdul.header.set("SNSR_NM", "E2V 2048 x 2048 (CCD 42-40)(B)", "Sensor Name")
+        hdul.header.set("SNSR_NM", "E2V 2088 x 2048 (CCD 42-40)(B)", "Sensor Name")
         hdul.header.set("SER_NO", self.serial, "Serial Number")
         hdul.header.set("TELESCOP", self.telescope, "Telescope ID")
-        # hdul.header.set("GAIN", self.gain, "Gain")
-        #hdul.header.set("CAM_NAME", "%s Cam" % self.camPrefix.upper(), "Camera Name")
+        hdul.header.set("GAIN", self.GetPreAmpGain(self.pre_amp_gain_idx), "Gain")
         hdul.header.set("INSTRUME", "SEDM-P60", "Camera Name")
-        # hdul.header.set("UTC", start_time.isoformat(), "UT-Shutter Open")
-        # hdul.header.set("END_SHUT", datetime.datetime.utcnow().isoformat(), "Shutter Close Time")
-        # hdul.header.set("OBSDATE", datestr, "UT Start Date")
-        # hdul.header.set("OBSTIME", timestr, "UT Start Time")
-        # hdul.header.set("CRPIX1", self.crpix1, "Center X pixel")
-        # hdul.header.set("CRPIX2", self.crpix2, "Center Y pixel")
-        # hdul.header.set("CDELT1", self.cdelt1, self.cdelt1_comment)
-        # hdul.header.set("CDELT2", self.cdelt2, self.cdelt2_comment)
-        # hdul.header.set("CTYPE1", self.ctype1)
-        # hdul.header.set("CTYPE2", self.ctype2)
         hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{timestamp}.fits')
 
 
