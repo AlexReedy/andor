@@ -93,7 +93,7 @@ def begin_cooling():
 def take_image():
     # exp_time = float(input('Input Exp Time: '))
     exp_time = 0.0
-    pre_amp_gain_index = int('Input Pre Amp Gain Index: ')
+    pre_amp_gain_index = int(input('Input Pre Amp Gain Index: '))
     vs_index = int(input('Input Vertical Shift Speed Index: '))
     hs_index = int(input('Input Horizontal Shift Speed Index: '))
 
@@ -112,12 +112,12 @@ def take_image():
 
     end_time = timeit.default_timer()
     read_time = end_time - start_time
-    print(f'{vs_index}{hs_index}_runtime: {read_time}')
+    print(f'PAG_{pre_amp_gain_index}_VSS_{vs_index}_HSS_{hs_index}_runtime: {read_time}')
 
     data = []
     andor.GetAcquiredData16(data)
     # andor.SaveAsFITS(FileTitle='test.fits', typ=0)
-    andor.saveFits(data)
+    andor.saveFits()
 
 def cool_up():
     get_temp = andor.GetTemperature()

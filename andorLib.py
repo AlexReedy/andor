@@ -444,16 +444,17 @@ class Andor():
         hdul.scale('int16', bzero=32768)
         hdul.header.set("EXPTIME", float(self.exp_time), "Exposure Time in seconds")
         hdul.header.set("ADCHANNEL", self.adc_idx, "A-D Channel")
-        hdul.header.set("HSSPEED", self.GetHSSpeed(self.pre_amp_gain_idx, self.hs_index), "HS speed in MHz")
-        hdul.header.set("VSSPEED", self.GetVSSpeed(self.vs_index), "VS Speed in microseconds")
+        hdul.header.set("HSSPEED", self.GetHSSpeed(0, 0, self.hs_index)[1], "HS speed in MHz")
+        hdul.header.set("VSSPEED", self.GetVSSpeed(self.vs_index)[1], "VS Speed in microseconds")
         hdul.header.set("TEMP", self.GetTemperature()[1], "Detector temp in deg C")
         hdul.header.set("INTERFC", "USB", "Instrument Interface")
         hdul.header.set("SNSR_NM", "E2V 2088 x 2048 (CCD 42-40)(B)", "Sensor Name")
         hdul.header.set("SER_NO", self.serial, "Serial Number")
         hdul.header.set("TELESCOP", self.telescope, "Telescope ID")
-        hdul.header.set("GAIN", self.GetPreAmpGain(self.pre_amp_gain_idx), "Gain")
+        hdul.header.set("GAIN", self.GetPreAmpGain(self.pre_amp_gain_idx)[1], "Gain")
         hdul.header.set("INSTRUME", "SEDM-P60", "Camera Name")
-        hdul.writeto(f'/home/alex/fits_images/savefits_tests/test_{timestamp}.fits')
+        hdul.writeto(f'/home/alex/fits_images/savefits_tests/andortest_{self.pre_amp_gain_idx}{self.vs_index}'
+                     f'{self.hs_index}_{timestamp}.fits')
 
 
 
