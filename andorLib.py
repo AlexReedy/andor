@@ -206,6 +206,8 @@ class Andor():
         self.acquisitionmode = None
         self.exp_time = None
 
+        self.readout_time = None
+
         self.telescope = '60'
         self.imageArray = None
 
@@ -331,6 +333,12 @@ class Andor():
         status = self.lib.GetTemperature(byref(current_temp))
         self.current_temp = current_temp.value
         return ERROR_STRING[status], self.current_temp
+
+    def GetReadOutTime(self):
+        readout_time = c_int()
+        status = check_call(self.lib.GetReadOutTime(byref(readout_time)))
+        self.readout_time = readout_time.value
+        return ERROR_STRING[status], self.readout_time
 
     def SetTemperature(self, temperature):
         status = check_call(self.lib.SetTemperature(c_int(temperature)))

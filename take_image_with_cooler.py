@@ -103,9 +103,13 @@ def take_image():
     andor.SetVSSpeed(vs_index)
     andor.SetHSSpeed(typ=0, index=hs_index)
 
+    readout_time = andor.GetReadOutTime()
+    print(f'GetReadOutTime Return: {readout_time[1]}')
 
     start_time = timeit.default_timer()
+
     andor.StartAcquisition()
+
     end_time = timeit.default_timer()
     read_time = end_time - start_time
     print(f'{vs_index}{hs_index}_runtime: {read_time}')
