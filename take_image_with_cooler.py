@@ -47,6 +47,7 @@ def initialize_camera():
 def begin_cooling():
     cool_to_temp = -90
     andor.SetTemperature(cool_to_temp)
+    cooling_data = [[], []]
 
     andor.CoolerON()
 
@@ -56,41 +57,58 @@ def begin_cooling():
 
     cooldown_counter = 0
 
+    cooling_data[0].append(cooldown_counter)
+    cooling_data[1].append(temp)
+
     print(f'[COOLING DETECTOR TO {cool_to_temp} C]')
 
     while lock != 'DRV_TEMP_STABILIZED':
         cooldown_counter = cooldown_counter + 1
+
         print(f'COOLING [{cooldown_counter}, {temp}, {lock}]')
-        ax.errorbar(cooldown_counter, temp, linestyle='none', marker='s', ms=2, color='black')
-        ax.axhline(cool_to_temp, linewidth=1, color='red')
-        plt.pause(1)
+
+        cooling_data[0].append(cooldown_counter)
+        cooling_data[1].append(temp)
+
+        time.sleep(1)
+
         get_temp = andor.GetTemperature()
         temp = get_temp[1]
         lock = get_temp[0]
 
-    plt.ion()
+
     get_temp = andor.GetTemperature()
     temp = get_temp[1]
     lock = get_temp[0]
+
+    cooling_data[0].append(cooldown_counter)
+    cooling_data[1].append(temp)
+
     print(f'COOLING [{cooldown_counter}, {temp}, {lock}]')
+    ax.errorbar(cooling_data[0], cooling_data[1], linestyle='none', marker='s', ms=2, color='black')
+    ax.axhline(cool_to_temp, linewidth=1, color='red')
+    plt.savefig(f'/home/alex/fits_images/savefits_tests/cooling_plot.png')
 
 
 def take_image():
-    exp_time = float(input('Input Exp Time: '))
-    hs_index = int(input('Input Horizontal Shift Speed Index: '))
+    # exp_time = float(input('Input Exp Time: '))
+    exp_time = 0.0
+    pre_amp_gain_index = int('Input Pre Amp Gain Index: ')
     vs_index = int(input('Input Vertical Shift Speed Index: '))
-    pre_amp_gain_index = int(input('Input Pre Amp Gain Index: '))
+    hs_index = int(input('Input Horizontal Shift Speed Index: '))
+
 
     andor.SetExposureTime(exp_time)
+    andor.SetPreAmpGain(pre_amp_gain_index)
     andor.SetVSSpeed(vs_index)
     andor.SetHSSpeed(typ=0, index=hs_index)
-    andor.SetPreAmpGain(index=pre_amp_gain_index)
+
 
     start_time = timeit.default_timer()
     andor.StartAcquisition()
     end_time = timeit.default_timer()
     read_time = end_time - start_time
-    print(f'{vs_index}{hs_index}{pre_amp_gain_index}_runtime: {read_time}')
+    print(f'{vs_index}{hs_index}_runtime: {read_time}')
 
     data = []
     andor.GetAcquiredData16(data)
