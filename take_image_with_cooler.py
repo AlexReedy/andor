@@ -89,6 +89,44 @@ def begin_cooling():
     ax.axhline(cool_to_temp, linewidth=1, color='red')
     plt.savefig(f'/home/alex/fits_images/savefits_tests/cooling_plot.png')
 
+def take_images_for_readout_times():
+    exp_time = 0.0
+    readtime_data = []
+    for pag_index in range(3):
+        for vs_index in range(2):
+            for hs_index in range(4):
+                andor.SetExposureTime(exp_time)
+                andor.SetPreAmpGain(pag_index)
+                andor.SetVSSpeed(vs_index)
+                andor.SetHSSpeed(typ=0, index=hs_index)
+
+                t_0 = timeit.default_timer()
+
+                andor.StartAcquisition()
+
+                t_1 = timeit.default_timer
+
+                data = []
+                andor.GetAcquiredData16(data)
+
+                t_2 = timeit.default_timer
+
+                andor.saveFits()
+
+                t_3 = timeit.default_timer
+
+                t_01 = np.round(t_1 - t_0, 4)
+                t_02 = np.round(t_2 - t_0, 4)
+                t_03 = np.round(t_3 - t_0, 4)
+
+                t_12 = np.round(t_2 - t_1, 4)
+                t_13 = np.round(t_3 - t_1, 4)
+
+                t_23 = np.round(t_3 - t_2, 4)
+
+                row = [pag_index, vs_index, hs_index, t_01, t_02, t_03, t_12, t_13, t_23]
+                readtime_data.append(row)
+
 
 def take_image():
     # exp_time = float(input('Input Exp Time: '))
@@ -167,7 +205,7 @@ if pre_init_command == 'y':
             start_acquisition_command = user_input_prompt('Start Acquisition')
             if start_acquisition_command == 'y':
                 # start acquisition function goes here
-                take_image()
+                take_images_for_readout_times()
                 sys_message('Acquisition Complete', 'Ready to Cool Up')
 
                 cooling_off_command = user_input_prompt('Turn Cooler OFF')
