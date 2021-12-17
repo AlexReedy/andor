@@ -95,6 +95,7 @@ def take_images_for_readout_times():
     for pag_index in range(3):
         for vs_index in range(2):
             for hs_index in range(4):
+                print("Starting Acquisition")
                 andor.SetExposureTime(exp_time)
                 andor.SetPreAmpGain(pag_index)
                 andor.SetVSSpeed(vs_index)
@@ -104,28 +105,32 @@ def take_images_for_readout_times():
 
                 andor.StartAcquisition()
 
-                t_1 = timeit.default_timer
+                t_1 = timeit.default_timer()
 
                 data = []
                 andor.GetAcquiredData16(data)
 
-                t_2 = timeit.default_timer
+                t_2 = timeit.default_timer()
 
                 andor.saveFits()
 
-                t_3 = timeit.default_timer
+                t_3 = timeit.default_timer()
 
-                t_01 = np.round(t_1 - t_0, 4)
-                t_02 = np.round(t_2 - t_0, 4)
-                t_03 = np.round(t_3 - t_0, 4)
+                t_01 = t_1 - t_0
+                t_02 = t_2 - t_0
+                t_03 = t_3 - t_0
 
-                t_12 = np.round(t_2 - t_1, 4)
-                t_13 = np.round(t_3 - t_1, 4)
+                t_12 = t_2 - t_1
+                t_13 = t_3 - t_1
 
-                t_23 = np.round(t_3 - t_2, 4)
+                t_23 = t_3 - t_2
 
                 row = [pag_index, vs_index, hs_index, t_01, t_02, t_03, t_12, t_13, t_23]
                 readtime_data.append(row)
+                print("Ending Acquisition: Moving to Next")
+    print("DONE!")
+    for i in range(len(readtime_data)):
+        print(readtime_data[i])
 
 
 def take_image():
@@ -141,21 +146,23 @@ def take_image():
     andor.SetVSSpeed(vs_index)
     andor.SetHSSpeed(typ=0, index=hs_index)
 
-    readout_time = andor.GetReadOutTime()
-    print(f'GetReadOutTime Return: {readout_time[1]}')
+    andor.StartAcquisition()
 
     start_time = timeit.default_timer()
 
-    andor.StartAcquisition()
-
-    end_time = timeit.default_timer()
-    read_time = end_time - start_time
-    print(f'PAG_{pre_amp_gain_index}_VSS_{vs_index}_HSS_{hs_index}_runtime: {read_time}')
-
     data = []
+
     andor.GetAcquiredData16(data)
-    # andor.SaveAsFITS(FileTitle='test.fits', typ=0)
+
+    end_time_1 = timeit.default_timer()
+    read_time_1 = end_time_1 - start_time
+    print(f'PAG_{pre_amp_gain_index}_VSS_{vs_index}_HSS_{hs_index}_runtime_1: {read_time_1}')
+
     andor.saveFits()
+
+    end_time_2 = timeit.default_timer()
+    read_time_2 = end_time_2 - start_time
+    print(f'PAG_{pre_amp_gain_index}_VSS_{vs_index}_HSS_{hs_index}_runtime_2: {read_time_2}')
 
 def cool_up():
     get_temp = andor.GetTemperature()
