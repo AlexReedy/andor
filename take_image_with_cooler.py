@@ -2,6 +2,9 @@ from andorLib import *
 import time
 import matplotlib.pyplot as plt
 import timeit
+import numpy as np
+import pandas as pd
+import sys
 
 andor = Andor()
 andor.loadLibrary()
@@ -12,6 +15,21 @@ ax.set_xlabel('Time [Sec]')
 ax.set_ylim(ymin=-100, ymax=60)
 plt.ioff()
 
+def getformattedtime():
+    #formatted_time = float(f'{time.time():.1f}')
+    formatted_time = np.round(time.time())
+    return formatted_time
+
+def format_output(val1, val2):
+    output = float(f'{val2-val1:.3f}')
+    return output
+
+def printProgressBar(i,max,postText):
+    n_bar =25 #size of progress bar
+    j= i/max
+    sys.stdout.write('\r')
+    sys.stdout.write(f"[{'=' * int(n_bar * j):{n_bar}s}] {int(100 * j)}%  {postText}")
+    sys.stdout.flush()
 
 def user_input_prompt(prompt_message):
     prompt = input(f'[USER INPUT] {prompt_message}? (y/n): ')
@@ -91,46 +109,97 @@ def begin_cooling():
 
 def take_images_for_readout_times():
     exp_time = 0.0
+    pag_dict = {0: 1.00,
+                1: 2.00,
+                2: 4.00
+                }
+
+    vss_dict = {0: 38.0,
+                1: 76.0
+                }
+
+    hss_dict = {0: 5.00,
+                1: 3.00,
+                2: 1.00,
+                3: 0.05
+                }
+
+    d = {'Indices': [],
+         'PAG': [],
+         'VSS (um)': [],
+         'HSS (MHz)': [],
+         't_01': [],
+         't_02': [],
+         't_03': [],
+         't_12': [],
+         't_13': [],
+         't_23': []
+         }
+
     readtime_data = []
+    counter = 1
+    steps = 5
     for pag_index in range(3):
         for vs_index in range(2):
             for hs_index in range(4):
-                print("Starting Acquisition")
+                print(f'{pag_index},{vs_index},{hs_index} [{counter} of 24]')
                 andor.SetExposureTime(exp_time)
                 andor.SetPreAmpGain(pag_index)
                 andor.SetVSSpeed(vs_index)
                 andor.SetHSSpeed(typ=0, index=hs_index)
 
-                t_0 = timeit.default_timer()
-
+                printProgressBar(0, steps, 'Starting Acquisition')
+                t_0 = getformattedtime()
                 andor.StartAcquisition()
 
-                t_1 = timeit.default_timer()
-
+                printProgressBar(1, steps, 'Getting Acquired Data')
+                t_1 = getformattedtime()
                 data = []
                 andor.GetAcquiredData16(data)
+                t_2 = getformattedtime()
 
-                t_2 = timeit.default_timer()
-
+                printProgressBar(2, steps, 'Writing to FITS')
                 andor.saveFits()
+                t_3 = getformattedtime()
 
-                t_3 = timeit.default_timer()
+                printProgressBar(3, steps, 'Calculating Readout Times')
+                t_01 = format_output(t_0, t_1)
+                t_02 = format_output(t_0, t_2)
+                t_03 = format_output(t_0, t_3)
+                '''
+                print(f't_01: {t_01}')
+                print(f't_02: {t_02}')
+                print(f't_03: {t_03}')
+                '''
+                t_12 = format_output(t_1, t_2)
+                t_13 = format_output(t_1, t_3)
+                '''
+                print(f't_12: {t_12}')
+                print(f't_13: {t_13}')
+                '''
+                t_23 = format_output(t_2, t_3)
+                # print(f't_23: {t_23}')
 
-                t_01 = t_1 - t_0
-                t_02 = t_2 - t_0
-                t_03 = t_3 - t_0
 
-                t_12 = t_2 - t_1
-                t_13 = t_3 - t_1
+                indicies = f'({pag_index},{vs_index},{hs_index})'
 
-                t_23 = t_3 - t_2
+                printProgressBar(4, steps, 'Creating Data Frame')
+                d['Indices'].append(indicies)
+                d['PAG'].append(pag_dict[pag_index])
+                d['VSS (um)'].append(vss_dict[vs_index])
+                d['HSS (MHz)'].append(hss_dict[hs_index])
+                d['t_01'].append(t_01)
+                d['t_02'].append(t_02)
+                d['t_03'].append(t_03)
+                d['t_12'].append(t_12)
+                d['t_13'].append(t_13)
+                d['t_23'].append(t_23)
+                printProgressBar(5, steps, 'Complete')
+                counter = counter + 1
 
-                row = [pag_index, vs_index, hs_index, t_01, t_02, t_03, t_12, t_13, t_23]
-                readtime_data.append(row)
-                print("Ending Acquisition: Moving to Next")
-    print("DONE!")
-    for i in range(len(readtime_data)):
-        print(readtime_data[i])
+                print('\n')
+    readtime_df = pd.DataFrame(data=d)
+    print(readtime_df)
 
 
 def take_image():
