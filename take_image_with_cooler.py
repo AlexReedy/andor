@@ -166,11 +166,8 @@ def take_images_for_readout_times():
                 t_01 = format_output(t_0, t_1)
                 t_02 = format_output(t_0, t_2)
                 t_03 = format_output(t_0, t_3)
-                '''
-                print(f't_01: {t_01}')
-                print(f't_02: {t_02}')
-                print(f't_03: {t_03}')
-                '''
+
+
                 t_12 = format_output(t_1, t_2)
                 t_13 = format_output(t_1, t_3)
                 '''

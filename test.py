@@ -36,10 +36,10 @@ def format_output(val1, val2):
 
 
 def printProgressBar(i,max,postText):
-    n_bar =25 #size of progress bar
+    n_bar =100 #size of progress bar
     j= i/max
     sys.stdout.write('\r')
-    sys.stdout.write(f"[{'=' * int(n_bar * j):{n_bar}s}] {int(100 * j)}%  {postText}")
+    sys.stdout.write(f"[{'|' * int(n_bar * j):{n_bar}s}] {int(100 * j)}%  {postText}")
     sys.stdout.flush()
 
 
@@ -130,11 +130,11 @@ def getreadtimes():
     readtime_df = pd.DataFrame(data=d)
     print(readtime_df)
 
-
-
-
-getreadtimes()
-
+print('Beginning Cool Down')
+for i in range(15):
+    print(f'[time/temp/status]: {i+1} sec / {np.random.randint(25,35)} C / DRV_TEMP_NOT_REACHED')
+    time.sleep(1)
+print('Camera Cooled')
 
 
 
